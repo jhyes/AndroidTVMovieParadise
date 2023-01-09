@@ -2,6 +2,7 @@ package com.halil.ozel.movieparadise.ui.search;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.DetailsOverviewRow;
 import androidx.leanback.widget.HeaderItem;
@@ -40,18 +41,12 @@ import timber.log.Timber;
 public class SearchFragment extends androidx.leanback.app.SearchFragment
         implements androidx.leanback.app.SearchFragment.SearchResultProvider, OnItemViewClickedListener {
 
-
     @Inject
     TheMovieDbAPI theMovieDbAPI;
-
     MovieResponse movieResponse;
-
     Movie movie;
-
-    ArrayObjectAdapter mAdapter;
-
+    ArrayObjectAdapter arrayAdapter;
     DetailsOverviewRow detailsOverviewRow;
-
     ArrayObjectAdapter arrayObjectAdapter = new ArrayObjectAdapter(new MoviePresenter());
 
 
@@ -60,34 +55,25 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
         SearchFragment fragment = new SearchFragment();
         fragment.setArguments(args);
         return fragment;
-
-
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         App.instance().appComponent().inject(this);
-
-        mAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-
+        arrayAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         setSearchResultProvider(this);
-
         setupSearchRow();
-
-
     }
 
 
     @Override
     public ObjectAdapter getResultsAdapter() {
-
-        return mAdapter;
+        return arrayAdapter;
     }
 
     @Override
     public boolean onQueryTextChange(String query) {
-
         theMovieDbAPI.getSearchMovies(query, Config.API_KEY_URL)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -99,13 +85,11 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
                 });
 
         performSearch();
-
         return true;
     }
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-
         theMovieDbAPI.getSearchMovies(query, Config.API_KEY_URL)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -117,7 +101,6 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
                 });
 
         performSearch();
-
         return true;
     }
 
@@ -128,9 +111,8 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
 
 
     private void setupSearchRow() {
-        mAdapter.add(new ListRow(new HeaderItem(0, "" + ""), arrayObjectAdapter));
+        arrayAdapter.add(new ListRow(new HeaderItem(0, "" + ""), arrayObjectAdapter));
         setOnItemViewClickedListener(this);
-
     }
 
 
@@ -138,7 +120,7 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
         arrayObjectAdapter.addAll(0, responseObj.getResults());
     }
 
-    private SimpleTarget<GlideDrawable> mGlideDrawableSimpleTarget = new SimpleTarget<GlideDrawable>() {
+    private final SimpleTarget<GlideDrawable> mGlideDrawableSimpleTarget = new SimpleTarget<GlideDrawable>() {
         @Override
         public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
             detailsOverviewRow.setImageDrawable(resource);
@@ -165,20 +147,17 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
 
 
     private void performSearch() {
-
         arrayObjectAdapter.clear();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         setSearchQuery(data, true);
     }
 
 
     @Override
     public void onItemClicked(Presenter.ViewHolder viewHolder, Object item, RowPresenter.ViewHolder itemViewHolder, Row row) {
-
         if (item instanceof Movie) {
             Movie movie = (Movie) item;
             Intent intent = new Intent(getActivity(), DetailActivity.class);
@@ -194,7 +173,5 @@ public class SearchFragment extends androidx.leanback.app.SearchFragment
                 startActivity(intent);
             }
         }
-
     }
-
 }
